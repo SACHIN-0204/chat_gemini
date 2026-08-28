@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gemini Chat</title>
+<style>
+  :root {
+    --bg: #16171b;
+    --panel: #1e2025;
+    --border: #2c2e35;
+    --text: #e9e9ec;
+    --text-dim: #9a9ba3;
+    --accent: #5b8cff;
+    --user-bubble: #2a3550;
+    --bot-bubble: #24262c;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin: 0;
+  }
+  header span {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .msg {
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.5;
+    font-size: 14.5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--user-bubble);
+    border-bottom-right-radius: 4px;
+  }
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.error {
+    align-self: flex-start;
+    color: #ff8080;
+    background: transparent;
+    border: 1px dashed #5a2e2e;
+  }
+  .empty-state {
+    margin: auto;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  #composer {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  #input {
+    flex: 1;
+    resize: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-family: inherit;
+    line-height: 1.4;
+    max-height: 140px;
+  }
+  #input:focus { outline: 1px solid var(--accent); }
+  #send {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  #send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .cursor {
+    display: inline-block;
+    width: 7px; height: 14px;
+    background: var(--text-dim);
+    margin-left: 2px;
+    animation: blink 1s steps(2) infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="dot"></div>
+      <h1>Gemini Chat</h1>
+      <span id="model-label"></span>
+    </header>
+    <div id="messages">
+      <div class="empty-state" id="empty-state">Ask me anything — powered by the free Gemini API.</div>
+    </div>
+    <form id="composer">
+      <textarea id="input" rows="1" placeholder="Message..." autofocus></textarea>
+      <button id="send" type="submit">Send</button>
+    </form>
+  </div>
+
+<script>
+  const messagesEl = document.getElementById('messages');
+  const emptyState = document.getElementById('empty-state');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+
+  // Full conversation history sent with every request so the model has context.
+  let history = [];
+
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  function addMessage(role, text) {
+    emptyState.remove();
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    addMessage('user', text);
+    history.push({ role: 'user', content: text });
+
+    const botDiv = addMessage('bot', '');
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    botDiv.appendChild(cursor);
+
+    let fullReply = '';
+
+    try {
+      const res = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      if (!res.body) throw new Error('No response stream');
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') continue;
+          if (!payload) continue;
+
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.error) {
+              botDiv.className = 'msg error';
+              botDiv.textContent = 'Error: ' + parsed.error;
+              fullReply = null;
+              break;
+            }
+            if (parsed.text) {
+              fullReply += parsed.text;
+              botDiv.textContent = fullReply;
+              botDiv.appendChild(cursor);
+              messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
+          } catch {}
+        }
+      }
+    } catch (err) {
+      botDiv.className = 'msg error';
+      botDiv.textContent = 'Error: could not reach the server.';
+      fullReply = null;
+    }
+
+    cursor.remove();
+    if (fullReply) {
+      history.push({ role: 'assistant', content: fullReply });
+    }
+    sendBtn.disabled = false;
+    input.focus();
+  });
+</script>
+</body>
+</html>

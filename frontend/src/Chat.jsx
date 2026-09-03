@@ -8,18 +8,13 @@ import { useState } from "react";
 
 function Chat() {
 
-    const {newChat, prevChats, reply} = useContext(MyContext);
+    const {newChat, prevChats = [], reply} = useContext(MyContext);
     const [latestReply, setLatestReply] = useState(null);
 
     useEffect(() => {
 
 
-        if(reply === null) {
-            setLatestReply(null);
-            return;
-        }
-
-          if(!prevChats?.length) return;
+                    if(reply === null || !prevChats.length) return;
 
           const content = reply.split("");
 
@@ -41,8 +36,8 @@ function Chat() {
         {newChat && <h1>Start a new Chat!</h1>}
             <div className="chats">
 
-               {
-                  prevChats?.slice(0, -1).map((chat, idx) => 
+                    {
+                          (reply !== null ? prevChats.slice(0, -1) : prevChats).map((chat, idx) =>
                     <div className={chat.role === "user" ? "userDiv" : "gptDiv"} key={idx}>
                         {
                             chat.role === "user" ? 
@@ -54,16 +49,9 @@ function Chat() {
                }
 
                {
-                prevChats.length > 0 && latestReply !== null && 
+                    reply !== null && latestReply !== null &&
                 <div className="gptDiv" key={"typing"}>
                    <ReactMarkdown rehypePlugins={rehypeHighlight}>{latestReply}</ReactMarkdown>
-                </div>
-               }
-
-                {
-                prevChats.length > 0 && latestReply === null && 
-                <div className="gptDiv" key={"non-typing"}>
-                   <ReactMarkdown rehypePlugins={rehypeHighlight}>{prevChats[prevChats.length-1].content}</ReactMarkdown>
                 </div>
                }
 

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
+import api from "../api.js";
 
 function Login() {
     const navigate = useNavigate();
@@ -18,22 +19,11 @@ function Login() {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:3000/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Login failed");
-            }
-
-            login(data);
+            const response = await api.post("/auth/login", formData);
+            login(response.data);
             navigate("/");
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || "Login failed");
         }
     };
 

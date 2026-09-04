@@ -9,7 +9,12 @@ import authRoutes from "./routes/user.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors(
+  {
+    origin: "https://chat-gemini-m81n.onrender.com",
+    credentials: true,
+  }
+));
 app.use(express.json({ limit: '2mb' }));
 
 app.use("/api/auth", authRoutes);

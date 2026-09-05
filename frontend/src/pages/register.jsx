@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api.js";
 
 function Register() {
     const navigate = useNavigate();
@@ -16,14 +17,7 @@ function Register() {
         setError("");
 
         try {
-            const response = await api.post("/auth/register", formData);
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Registration failed");
-            }
-
+            await api.post("/auth/register", formData);
             navigate("/login");
         } catch (err) {
             setError(err.message);

@@ -19,11 +19,11 @@ function Login() {
         setError("");
 
         try {
-            const response = await api.post("/auth/login", formData);
-            login(response.data);
+            const data = await api.post("/auth/login", formData);
+            login(data);
             navigate("/");
         } catch (err) {
-            setError(err.response?.data?.message || err.message || "Login failed");
+            setError(err.message || "Login failed");
         }
     };
 

@@ -5,6 +5,7 @@ import { useContext, useState, useEffect } from "react";
 import { ScaleLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
+import api from "./api.js";
 
 function ChatWindow() {
     const navigate = useNavigate();
@@ -26,23 +27,13 @@ function ChatWindow() {
         setLoading(true);
         setPrompt("");
         setPrevChats((chats) => [...chats, { role: "user", content: message }]);
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
+        try {
+            const data = await api.post("/chat", {
                 message,
                 threadId: currThreadId
-            })
-        };
-
-        try {
-            const response = await fetch("http://localhost:3000/api/chat", options);
-            const res = await response.json();
-            console.log(res);
-            setPrevChats((chats) => [...chats, { role: "assistant", content: res.reply }]);
-            setReply(res.reply);
+            });
+            setPrevChats((chats) => [...chats, { role: "assistant", content: data.reply }]);
+            setReply(data.reply);
         } catch (err) {
             console.log(err);
             setReply(null);

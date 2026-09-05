@@ -14,7 +14,7 @@ function Chat() {
     useEffect(() => {
 
 
-                    if(reply === null || !prevChats.length) return;
+          if(reply === null || !prevChats.length) return;
 
           const content = reply.split("");
 

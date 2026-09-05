@@ -30,7 +30,7 @@ router.get("/thread", async(req, res) => {
 
   } catch(err) {
     console.log(err);
-    res.send(500).json({message: "Failed to fetch threads"});
+    res.status(500).json({message: "Failed to fetch threads"});
   }
 });
 
@@ -43,14 +43,14 @@ router.get("/thread/:threadId", async(req, res) => {
     const thread = await Thread.findOne({threadId});
 
     if(!thread) {
-      res.status(404).json({error: "Thread not Found"});
+      return res.status(404).json({error: "Thread not Found"});
     }
 
     res.json(thread.messages);
 
    } catch(err) {
     console.log(err)
-    res.send(500).json({message: "Failed to fetch chat"});
+    res.status(500).json({message: "Failed to fetch chat"});
    }
 });
 
@@ -63,14 +63,14 @@ router.delete("/thread/:threadId", async(req, res) => {
    const deletedThread = await Thread.findOneAndDelete({threadId});
 
    if(!deletedThread) {
-    res.status(404).json({message: "Thread not Found"});
+    return res.status(404).json({message: "Thread not Found"});
    }
 
    res.status(200).json({success: "Thread deleted successfully"});
 
   } catch(err) {
     console.log(err)
-    res.send(500).json({message: "Failed to delete chat"});
+    res.status(500).json({message: "Failed to delete chat"});
   }
 });
 
@@ -79,7 +79,7 @@ router.post("/chat", async(req, res) => {
   const {threadId, message} = req.body;
 
   if(!threadId || !message) {
-    res.status(400).json({error: "missing required fields"});
+    return res.status(400).json({error: "missing required fields"});
   }
 
   try {

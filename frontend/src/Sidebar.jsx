@@ -3,6 +3,7 @@ import { useContext, useEffect } from "react";
 import { MyContext } from "./MyContext.jsx";
 import {v1 as uuidv1} from "uuid"; 
 import api from "./api.js";
+import blacklogo from "./assets/blacklogo.png";
 
 function Sidebar() {
 
@@ -11,8 +12,8 @@ function Sidebar() {
     const getAllThreads = async () => {
         try {
         //   const response = await fetch("http://localhost:3000/api/thread");
-          const response = await api.get("/thread");
-          const res = await response.json();
+          const res = await api.get("/thread");
+        //   const res = await response.json();
           const filteredData = res.map(thread => ({threadId: thread.threadId, title: thread.title}));
         //   console.log(filteredData);
           setAllThreads(filteredData);
@@ -39,8 +40,8 @@ function Sidebar() {
         try {
 
             // const response = await fetch(`http://localhost:3000/api/thread/${newThreadId}`);
-            const response = await api.get(`/thread/${newThreadId}`);
-            const res = await response.json();
+            const res = await api.get(`/thread/${newThreadId}`);
+            // const res = await response.json();
             console.log(res);
             setPrevChats(res);
             setNewChat(false);
@@ -54,8 +55,8 @@ function Sidebar() {
         try {
 
             // const response = await fetch(`http://localhost:3000/api/thread/${threadId}`, {method: "DELETE"});
-            const response = await api.delete(`/thread/${threadId}`);
-            const res = await response.json();
+            const res = await api.delete(`/thread/${threadId}`, {method: "DELETE"});
+            // const res = await response.json();
             console.log(res);
 
             //updated threads re-render
@@ -74,7 +75,7 @@ function Sidebar() {
     return (
            <section className="sidebar">
             <button onClick={createNewChat}>
-                 <img src="src/assets/blacklogo.png" alt="gemini log" className="logo"></img>
+                 <img src={blacklogo} alt="gemini log" className="logo"></img>
                  <span className="fa-solid fa-pen-to-square"></span>
             </button>
 

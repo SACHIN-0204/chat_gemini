@@ -7,7 +7,7 @@ import blacklogo from "./assets/blacklogo.png";
 
 function Sidebar() {
 
-    const {allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats} = useContext(MyContext);
+    const {allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats, isSidebarOpen, setIsSidebarOpen} = useContext(MyContext);
 
     const getAllThreads = async () => {
         try {
@@ -32,10 +32,12 @@ function Sidebar() {
         setReply(null);
         setCurrThreadId(uuidv1());
         setPrevChats([]);
+        setIsSidebarOpen(false);
     }
 
     const changeThread = async (newThreadId) => {
         setCurrThreadId(newThreadId);
+        setIsSidebarOpen(false);
 
         try {
 
@@ -73,11 +75,22 @@ function Sidebar() {
     }
 
     return (
-           <section className="sidebar">
-            <button onClick={createNewChat}>
-                 <img src={blacklogo} alt="gemini log" className="logo"></img>
-                 <span className="fa-solid fa-pen-to-square"></span>
-            </button>
+        <>
+        {isSidebarOpen && (
+            <div className="sidebarOverlay" onClick={() => setIsSidebarOpen(false)}></div>
+        )}
+        <section className={isSidebarOpen ? "sidebar open" : "sidebar"}>
+            <div className="sidebarTop">
+                <button onClick={createNewChat}>
+                    <img src={blacklogo} alt="gemini log" className="logo"></img>
+                    <span className="fa-solid fa-pen-to-square"></span>
+                </button>
+                <i
+                    className="fa-solid fa-xmark closeSidebar"
+                    onClick={() => setIsSidebarOpen(false)}
+                    aria-label="Close sidebar"
+                ></i>
+            </div>
 
             <ul className="history">
                 {
@@ -102,8 +115,9 @@ function Sidebar() {
             <div className="sign">
                 <p>By Sachin Vishwakarma &hearts;</p>
             </div>
-            
-           </section>
+
+        </section>
+        </>
     )
 }
 

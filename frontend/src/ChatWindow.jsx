@@ -10,7 +10,7 @@ import api from "./api.js";
 function ChatWindow() {
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
-    const { prompt, setPrompt, setReply, currThreadId, setPrevChats } = useContext(MyContext);
+    const { prompt, setPrompt, setReply, currThreadId, setPrevChats, setIsSidebarOpen } = useContext(MyContext);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -53,11 +53,18 @@ function ChatWindow() {
     return (
         <div className="chatWindow">
             <div className="navbar">
-               <span>ChatGemini <i className="fa-solid fa-chevron-down"></i></span>
+               <div className="navLeft">
+                   <i
+                       className="fa-solid fa-bars menuToggle"
+                       onClick={() => setIsSidebarOpen(true)}
+                       aria-label="Open menu"
+                   ></i>
+                   <span className="navTitle">ChatGemini <i className="fa-solid fa-chevron-down"></i></span>
+               </div>
                <div className="userIconDiv" onClick={handleProfileClick}>
                 <span className="userIcon"><i className="fa-solid fa-user"></i></span>
                 {user?.username && (
-                    <span style={{ marginLeft: "8px", fontSize: "14px", fontWeight: 600 }}>
+                    <span className="usernameText">
                         {user.username}
                     </span>
                 )}

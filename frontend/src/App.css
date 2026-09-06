@@ -2,5 +2,7 @@
     background: linear-gradient(180deg, #0b0d0f 0%, #101417 100%);
     display: flex;
     min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     color: var(--text);
 }

@@ -3,10 +3,38 @@
     color: var(--muted);
     height: 100vh;
     width: 320px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sidebarTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 6px 0;
+}
+
+.closeSidebar {
+    display: none;
+    flex-shrink: 0;
+    font-size: 20px;
+    padding: 10px;
+    margin: 0 6px 0 0;
+    cursor: pointer;
+    color: var(--muted);
+}
+
+.sidebarOverlay {
+    display: none;
+}
+
+.sidebarTop button {
+    flex: 1;
+    margin: 10px 0 10px 10px; /* drop the right margin so gap alone controls spacing to the X */
 }
 
 button {
@@ -92,3 +120,32 @@ button:hover {
     border-radius: 10px;
 }
 
+/* Mobile: sidebar becomes an off-canvas drawer */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: min(80vw, 320px);
+        z-index: 1100;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 20px 0 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .closeSidebar {
+        display: block;
+    }
+
+    .sidebarOverlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+    }
+}

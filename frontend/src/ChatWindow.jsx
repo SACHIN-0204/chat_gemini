@@ -1,7 +1,7 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
 import { MyContext } from "./MyContext.jsx";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { ScaleLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
@@ -14,13 +14,12 @@ function ChatWindow() {
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
+    const getReply = async () => {
         if (!user) {
             navigate('/login');
+            return;
         }
-    }, [user, navigate]);
 
-    const getReply = async () => {
         const message = prompt.trim();
         if (!message || loading) return;
 
@@ -88,15 +87,23 @@ function ChatWindow() {
                     </div>
                 </div>
             }
+            {
+                !user &&
+                <div className="loginBanner">
+                    Please <span className="loginBannerLink" onClick={() => navigate('/login')}>login</span> to start chatting.
+                </div>
+            }
+
             <Chat></Chat>
 
             <ScaleLoader color="#fff" loading={loading}></ScaleLoader>
 
             <div className="chatInput">
                 <div className="inputBox">
-                    <input placeholder="Ask Anything"
+                    <input placeholder={user ? "Ask Anything" : "Please login to chat"}
                        value={prompt}
                        onChange={(e) => setPrompt(e.target.value)}
+                       onFocus={() => { if (!user) navigate('/login'); }}
                        onKeyDown={(e) => e.key === 'Enter' ? getReply() : ''}
                     />
                     <button id="submit" type="button" onClick={getReply} aria-label="Send message">

@@ -113,6 +113,26 @@
     font-weight: 700;
 }
 
+/* Login banner */
+
+.loginBanner {
+    width: 100%;
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #fcd34d;
+    background: rgba(252, 211, 77, 0.08);
+    border-bottom: 1px solid rgba(252, 211, 77, 0.15);
+}
+
+.loginBannerLink {
+    color: #7dd3fc;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /* Chat Input */
 
 .chatInput {

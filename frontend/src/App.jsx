@@ -2,22 +2,12 @@ import './App.css'
 import Sidebar from "./Sidebar.jsx";
 import ChatWindow from "./ChatWindow.jsx";
 import { MyContext } from "./MyContext.jsx";
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { v1 as uuidv1 } from "uuid";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Register from './pages/register.jsx';
 import Login from './pages/Login.jsx';
-import AuthProvider, { AuthContext } from './context/AuthContext.jsx';
-
-function ProtectedRoute({ children }) {
-  const { user } = useContext(AuthContext);
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-}
+import AuthProvider from './context/AuthContext.jsx';
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -50,17 +40,15 @@ function App() {
           <Route
             path="/"
             element={
-              <ProtectedRoute>
-                <div className="app">
-                  <MyContext.Provider value={providerValues}>
-                    <Sidebar />
-                    <ChatWindow />
-                  </MyContext.Provider>
-                </div>
-              </ProtectedRoute>
+              <div className="app">
+                <MyContext.Provider value={providerValues}>
+                  <Sidebar />
+                  <ChatWindow />
+                </MyContext.Provider>
+              </div>
             }
           />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
